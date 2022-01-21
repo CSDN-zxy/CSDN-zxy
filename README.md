@@ -1,13 +1,20 @@
-### Hi there 👋
+#define _CRT_SECURE_NO_WARNINGS 1
+#include "router.h"
 
-<!--
-**CSDN-zxy/CSDN-zxy** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+//处理数据包的输入
+LL Getinput()
+{
+	pf = fopen("date.txt", "r+");
+	if (pf == NULL)
+	{
+		return 0;
+	}
+	return 1;
+}
 
-Here are some ideas to get you started:
+//获取规则集元素的指针
+LL Getrule()
+{
+	rf = fopen("rule.txt", "r");
 
-- 🔭 I’m currently studying on FuZhou University. 
-- 🌱 I’m currently learning computer science.
-- 👯 I’m looking to collaborate on exciting projects.
-- 🤔 I’m looking for help with people in need.
-- 📫 How to reach me: communicate with me.
--->
+}
