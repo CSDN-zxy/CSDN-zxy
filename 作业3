@@ -1,0 +1,131 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+
+#include "router.h"
+#include <stdlib.h>
+
+/*
+	1,五元组
+	192.168.1.1             10000              TCP           121.14.88.76          80 
+	IP地址为192.168.1.1     终端通过端口10000  利用TCP协议   IP地址为121.14.88.76  端口为80的终端进行连接
+
+	2,规则集 规则集是匹配规则的集合，以五元组的形式给出范围
+	178.139.217.251/32   126.0.44.183/32       0 : 65535        1526 : 1526   0x06/0xFF    0x1000/0x1000
+	原IP地址			 目标IP地址  (32)位    规定源端口范围   目的端口	  协议号范围   规则优先级
+
+	3，数据集 数据集是数据包的集合，同样以五元组的形式给出数据包的精确五元组信息
+	995509645   269990131   0     0      255
+	源IP		目的IP      端口  端口   协议号
+
+	4,规则匹配
+	对于一个数据包P，当它每个字段的内容（源/目的IP，端口号，协议号）都在规则集中的某条规则的范围内时则匹配
+	，一个数据包可能匹配多个规则，其中优先级最高的规则称作数据包的最佳匹配。
+
+
+	举例：
+	数据包：	2995509645			269990131			0			0			255			
+	最佳匹配：	178.139.217.141/32	16.208.18.218/32	0 : 65535	0 : 65535	0x00/0x00
+	1011 0010 1000 1011 1101 1001 1000 1101
+	187.192.73.202/32
+	2^24 = 16,777,216
+	2^16 = 65,536
+	2^8  = 256
+
+*/
+
+
+int main()
+{
+
+	//读取数据包的元素
+	scanf("./main%s %s", name1, name2);
+
+	Getinput();
+	char ch[100];
+	FILE* wr = fopen("res.txt", "r+");
+	while (fgets(ch, 100, pf) != NULL)
+	{
+		//1,读入数据包 及 转换格式
+		//fgetc 当读取失败的时候或者遇到文件结束的时候，都会返回EOF
+
+		//得到数据包
+
+		//字符串转换为数据
+		LL sor, dest, yd, md, agre;
+		sscanf(ch, "%lld	%lld	%lld	%lld	%lld", &sor, &dest, &yd, &md,&agre);
+		//printf("%lld	%lld	%lld	%lld	%lld\n", sor, dest, yd, md, agre);
+		//2，循环读入规则集 并进行匹配
+		Getrule();
+		char ch1[100];
+		int id = -1;
+
+		while (fgets(ch1, 100, rf) != NULL )
+		{
+			id++;
+			LL a1, a2, a3, a4, b1, b2, b3, b4;
+			LL rg1, rg2;   //源端口的范围
+			LL rg3, rg4;   //目的地端口的范围
+			int rg5, rg6;  //协议号的范围
+			//@178.139.217.141/32	16.208.18.218/32	0 : 65535	0 : 65535	0x00/0x00
+			int h1, h2;
+			sscanf(ch1,"@%lld.%lld.%lld.%lld/%d	%lld.%lld.%lld.%lld/%d	%lld : %lld	%lld : %lld	%x/%x",
+				&a1, &a2, &a3, &a4,&h1, &b1, &b2, &b3, &b4, &h2,&rg1, &rg2, &rg3, &rg4, &rg5, &rg6);
+
+			//printf("@%lld.%lld.%lld.%lld/32	%lld.%lld.%lld.%lld/32	%lld : %lld	%lld : %lld	%d/%d\n",
+				//a1, a2, a3, a4, b1, b2, b3, b4, rg1, rg2, rg3, rg4, rg5, rg6);
+
+			int sign = 1;
+
+			LL sor1 = a1 * 16777216 + a2 * 65536 + a3 * 256 + a4;
+			if (sor != sor1) {
+				//printf("Q1\n");
+				sign = 0; continue;
+			}
+
+			LL dest1 = b1 * 16777216 + b2 * 65536 + b3 * 256 + b4;
+			if (dest != dest1) {
+				//printf("Q2 dest = %lld  dest1 = %lld\n",dest,dest1);
+				sign = 0; continue;
+			}
+
+			if (yd < rg1 || yd > rg2) {
+				//printf("Q3\n");
+				sign = 0; continue;
+			}
+			if (md < rg3 || md > rg4) {
+				//printf("Q4\n");
+				sign = 0; continue;
+			}
+			if (rg5 == rg6) {
+				;
+			}
+			else
+			{
+				if (agre  < rg5 || agre > rg6) {
+					//printf("Q5\n");
+					sign = 0; continue;
+				}
+			}
+			if (sign == 1) break;
+		}
+		//printf("id = %d\n", id);
+		//将id转换为字符串 + \n
+		char str[25];
+		_itoa(id, str, 10);
+		int l = strlen(str);
+		str[l] = '\n';
+		str[l + 1] = '\0';
+		//printf("%s", str);
+
+		if (id == -1) fputs("-1\n",wr);
+		else fprintf(wr, str);
+		
+		
+
+		//重置规则集指针
+		rewind(rf);
+		//进入下一行
+		//或者是读取结束
+	}
+
+	return 0;
+}
